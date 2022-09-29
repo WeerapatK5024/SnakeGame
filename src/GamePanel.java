@@ -6,8 +6,8 @@ import java.util.Random;
 import javax.swing.Timer;
 public class GamePanel extends JPanel implements ActionListener{
 
-    static final int SCREEN_WIDTH = 750;
-    static final int SCREEN_HEIGHT = 750;
+    static final int SCREEN_WIDTH = 600;
+    static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/(UNIT_SIZE*UNIT_SIZE);
     int DELAY = 75;
@@ -15,11 +15,23 @@ public class GamePanel extends JPanel implements ActionListener{
     final int y[] = new int[GAME_UNITS];
     int bodyParts = 3;
     int applesEaten;
+    // for normal apple
     int appleX;
     int appleY;
 
+    // for bad apple
+
 //    int badAppleX;
 //    int badAppleY;
+
+    // for spike
+    int spikeY;
+    int spikeX;
+
+    // for spike2
+
+    int spikeY2;
+    int spikeX2;
 
     char direction = 'R';
     boolean running = false;
@@ -50,12 +62,13 @@ public class GamePanel extends JPanel implements ActionListener{
     public void draw(Graphics g){
 
         if(running){
-            //draw grid
-//            for(int i=0;i<SCREEN_HEIGHT/UNIT_SIZE;i++){
-//             g.drawLine(i*UNIT_SIZE,0,i*UNIT_SIZE,SCREEN_HEIGHT); // draw grid for things in game
-//             g.drawLine(0,i*UNIT_SIZE,SCREEN_WIDTH,i*UNIT_SIZE);
-//         }
-
+            g.setColor(Color.CYAN);
+            // draw grid
+            for(int i=0;i<SCREEN_HEIGHT/UNIT_SIZE;i++){
+             g.drawLine(i*UNIT_SIZE,0,i*UNIT_SIZE,SCREEN_HEIGHT); // draw grid for things in game
+             g.drawLine(0,i*UNIT_SIZE,SCREEN_WIDTH,i*UNIT_SIZE);
+         }
+            // draw color
             g.setColor(Color.red);
             g.fillOval(appleX,appleY,UNIT_SIZE,UNIT_SIZE); // generate apple
 //          g.fillOval(badAppleX,badAppleY,UNIT_SIZE,UNIT_SIZE);
@@ -65,16 +78,22 @@ public class GamePanel extends JPanel implements ActionListener{
                 g.setColor(Color.decode("#228B22"));
                 g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE); // generate head at 'i' cord which is '1'
              }
-                else {
+                else { // to generate will
                      g.setColor(new Color(50,205,50));
-                     g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
+//                     g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255))); To random snake color
                     g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE); // if already has 'head' then generate 'tail'
              }
-                g.setColor(Color.red);
+                g.setColor(Color.red); // generate score
                 g.setFont(new Font("Ink Free",Font.BOLD,40));
                 FontMetrics metrics = getFontMetrics(g.getFont());
                 g.drawString("SCORE : "+applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE : "+applesEaten))/2,g.getFont().getSize());
         }
+            if(applesEaten%5 == 0){
+                g.setColor(Color.gray);
+                g.fillOval(spikeX,spikeY,UNIT_SIZE,UNIT_SIZE);
+                g.fillOval(spikeX2,spikeY2,UNIT_SIZE,UNIT_SIZE);
+
+            }
     }
         else {
             gameOver(g);
@@ -87,6 +106,15 @@ public class GamePanel extends JPanel implements ActionListener{
 
 //        badAppleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE; // random bad apple
 //        badAppleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
+    }
+
+    public void newSpike(){
+        spikeX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
+        spikeY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
+
+//        spikeX2 = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
+//        spikeY2 = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
+
     }
 
     public void move(){
@@ -118,9 +146,21 @@ public class GamePanel extends JPanel implements ActionListener{
             bodyParts++; // body longer
             applesEaten++; // increment scoren
             newApple();
-            DELAY--;
+//            DELAY--; for increased snake speed
         }
+    }
 
+    public void checkSpike(){
+        if((x[0] == spikeX) && (y[0] == spikeY)){ // if snake 'head' in same 'cord' at spike
+            bodyParts--;
+            applesEaten--;
+            newSpike();
+        }
+        if((x[0] == spikeX2) && (y[0] == spikeY2)){
+            bodyParts--;
+            applesEaten--;
+            newSpike();
+        }
     }
 
     public void checkCollisions(){
@@ -169,8 +209,10 @@ public class GamePanel extends JPanel implements ActionListener{
         if(running){
             move(); // check if game is running
             checkApple();
+            checkSpike();
             checkCollisions();
         }
+
         repaint();
 
     }
