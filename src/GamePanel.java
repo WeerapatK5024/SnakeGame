@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
-import java.util.Deque;
 import java.util.Random;
 import javax.swing.Timer;
 public class GamePanel extends JPanel implements ActionListener{
@@ -49,6 +48,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
     public void startGame(){
         newApple();
+        newSpike();
         running = true;
         timer = new Timer(DELAY,this);
         timer.start();
@@ -61,40 +61,38 @@ public class GamePanel extends JPanel implements ActionListener{
 
     public void draw(Graphics g){
 
-        if(running){
+        if(running) {
             g.setColor(Color.CYAN);
             // draw grid
-            for(int i=0;i<SCREEN_HEIGHT/UNIT_SIZE;i++){
-             g.drawLine(i*UNIT_SIZE,0,i*UNIT_SIZE,SCREEN_HEIGHT); // draw grid for things in game
-             g.drawLine(0,i*UNIT_SIZE,SCREEN_WIDTH,i*UNIT_SIZE);
-         }
+            for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
+                g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT); // draw grid for things in game
+                g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
+            }
             // draw color
             g.setColor(Color.red);
-            g.fillOval(appleX,appleY,UNIT_SIZE,UNIT_SIZE); // generate apple
-//          g.fillOval(badAppleX,badAppleY,UNIT_SIZE,UNIT_SIZE);
+            g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE); // generate apple
+//
 
-            for(int i=0;i< bodyParts;i++){ // if bodyparts is 0 then generate 'head'
-                if(i==0){
-                g.setColor(Color.decode("#228B22"));
-                g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE); // generate head at 'i' cord which is '1'
-             }
-                else { // to generate will
-                     g.setColor(new Color(50,205,50));
+            for (int i = 0; i < bodyParts; i++) { // if body parts is 0 then generate 'head'
+                if (i == 0) {
+                    g.setColor(Color.decode("#228B22"));
+                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE); // generate head at 'i' cord which is '1'
+                } else { // to generate tail
+                    g.setColor(new Color(50, 205, 50));
 //                     g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255))); To random snake color
-                    g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE); // if already has 'head' then generate 'tail'
-             }
+                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE); // if already has 'head' then generate 'tail'
+                }
                 g.setColor(Color.red); // generate score
-                g.setFont(new Font("Ink Free",Font.BOLD,40));
+                g.setFont(new Font("Ink Free", Font.BOLD, 40));
                 FontMetrics metrics = getFontMetrics(g.getFont());
-                g.drawString("SCORE : "+applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE : "+applesEaten))/2,g.getFont().getSize());
-        }
-            if(applesEaten%5 == 0){
-                g.setColor(Color.gray);
-                g.fillOval(spikeX,spikeY,UNIT_SIZE,UNIT_SIZE);
-                g.fillOval(spikeX2,spikeY2,UNIT_SIZE,UNIT_SIZE);
-
+                g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
             }
-    }
+            if (applesEaten != 0 &&applesEaten % 5 == 0) {
+                g.setColor(Color.gray);
+                g.fillOval(spikeX, spikeY, UNIT_SIZE, UNIT_SIZE);
+                g.setColor(Color.gray);
+            }
+        }
         else {
             gameOver(g);
         }
@@ -104,16 +102,17 @@ public class GamePanel extends JPanel implements ActionListener{
         appleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE; // random place for apple to spawn
         appleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
 
-//        badAppleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE; // random bad apple
+//        badAppleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE; =
 //        badAppleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
     }
 
     public void newSpike(){
+
         spikeX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
         spikeY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
 
-//        spikeX2 = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
-//        spikeY2 = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
+        spikeX2 = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
+        spikeY2 = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
 
     }
 
@@ -144,31 +143,24 @@ public class GamePanel extends JPanel implements ActionListener{
     public void checkApple(){
         if((x[0] == appleX) && (y[0] == appleY)){ // if position of 'head' and 'apple' in same position
             bodyParts++; // body longer
-            applesEaten++; // increment scoren
+            applesEaten++; // increment score
             newApple();
 //            DELAY--; for increased snake speed
         }
     }
 
-    public void checkSpike(){
-        if((x[0] == spikeX) && (y[0] == spikeY)){ // if snake 'head' in same 'cord' at spike
+    public void checkSpike() {
+        if ((x[0] == spikeX) && (y[0] == spikeY) || (x[0] == spikeX2) && (y[0] == spikeY2)) { // if snake 'head' in same 'cord' at spike
             bodyParts--;
-            applesEaten--;
-            newSpike();
-        }
-        if((x[0] == spikeX2) && (y[0] == spikeY2)){
-            bodyParts--;
-            applesEaten--;
             newSpike();
         }
     }
-
     public void checkCollisions(){
         // check for hit snake body
-        for(int i = bodyParts;i>0;i--){
-            if((x[0] == x[i]) && (y[0] == y[i])){ // if head (x[0]) hit it bodypart
-                running = false; // end the game
-            }
+        for(int i = bodyParts; i>0 ; i--){
+         if((x[0] == x[i]) && (y[0] == y[i])) { // if head (x[0]) hit it bodypart
+             running = false; // end the game
+         }
         }
 
         // check if head hit border
