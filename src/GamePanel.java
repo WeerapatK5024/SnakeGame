@@ -1,10 +1,10 @@
-import com.sun.tools.jconsole.JConsoleContext;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
 import java.util.Random;
 import javax.swing.Timer;
+
 
 public class GamePanel extends JPanel implements ActionListener { // JPanel use to organize components
 
@@ -33,6 +33,8 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     int spikeX2;
     int spikeX3;
     int spikeY3;
+    int icepathX;
+    int icepathY;
 
     char direction = 'R'; // first direction for start
     boolean running = false;
@@ -40,19 +42,30 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     Random random;
 
     GamePanel() {
-        random = new Random();
-        this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
-        this.setBackground(Color.yellow);
+        if (running) {
+            random = new Random();
+            this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
+            this.setBackground(Color.yellow);
 
-        this.setFocusable(true);
-        this.addKeyListener(new MyKeyAdapter());
-        startGame();
+            this.setFocusable(true);
+            this.addKeyListener(new MyKeyAdapter());
+            startGame();
+        } else {
+            random = new Random();
+            this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
+            this.setBackground(Color.yellow);
+
+            this.setFocusable(true);
+            this.addKeyListener(new MyKeyAdapter());
+            startGame();
+        }
     }
 
     public void startGame() {
         newApple();
         newSpike();
         newBadApple();
+        newIcePath();
         running = true;
         timer = new Timer(DELAY, this);
         timer.start();
@@ -62,10 +75,11 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         super.paintComponent(g);
         draw(g);
     }
-
+    private boolean gameIsOver = false;
     public void draw(Graphics g) {
 
         if (running) {
+//
             // draw grid
 //            g.setColor(Color.CYAN);
 //            for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
@@ -79,20 +93,25 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 
 
             // draw spike
-            if(bodyParts < 70) {
+            if (bodyParts < 100) {
+                //for draw spike when bodypart is lower than 70~
                 g.setColor(Color.gray);
                 g.fillOval(spikeX, spikeY, UNIT_SIZE, UNIT_SIZE);
                 g.fillOval(spikeX2, spikeY2, UNIT_SIZE, UNIT_SIZE);
                 g.fillOval(spikeX3, spikeY3, UNIT_SIZE, UNIT_SIZE);
-            }else if(bodyParts >70) {
+                //for draw ice path
+                g.setColor(Color.blue);
+                g.fillOval(icepathX, icepathY, UNIT_SIZE, UNIT_SIZE);
+            } else if (bodyParts > 100) {
                 g.setColor(Color.gray);
                 g.fillOval(spikeX, spikeY, UNIT_SIZE, UNIT_SIZE);
             }
 
             // draw bad apple
-            if(applesEaten%50 == 0 || applesEaten%55 ==0  || applesEaten%45 ==0 || applesEaten%65==0){
-                g.setColor(Color.red);
-                g.fillOval(badAppleX,badAppleY,UNIT_SIZE,UNIT_SIZE);
+            if ((applesEaten != 0 && applesEaten % 50 == 0 && bodyParts < 100) || (applesEaten % 55 == 0 && bodyParts < 100)
+                    || (applesEaten % 45 == 0 && bodyParts < 100) || (applesEaten % 65 == 0 && bodyParts < 100)) {
+                g.setColor(Color.pink);
+                g.fillOval(badAppleX, badAppleY, UNIT_SIZE, UNIT_SIZE);
             }
 
             for (int i = 0; i < bodyParts; i++) { // if body parts is 0 then generate 'head'
@@ -105,26 +124,61 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE); // if already has 'head' then generate 'tail'
                 }
                 g.setColor(Color.red); // generate scoreboard
-                g.setFont(new Font("Ink Free", Font.BOLD, 40));
+                g.setFont(new Font("Fira Code Regular", Font.BOLD, 40));
                 FontMetrics metrics = getFontMetrics(g.getFont());
-                g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
+//                g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
+                g.drawString("SCORE : " + applesEaten,0,600);
             }
-        } else {
-            gameOver(g);
         }
+        else {
+//            gameOver(g);
+            gameIsOver = true;
+        }
+
+        if(gameIsOver){
+            g.setColor(Color.black);
+            g.setFont(new Font("Courier New", Font.BOLD, 75));
+            FontMetrics metrics1 = getFontMetrics(g.getFont());
+            g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
+            g.setColor(Color.black);
+            g.setFont(new Font("Courier New", Font.BOLD, 20));
+            g.drawString("PRESS SPACE TO RESTART", 150 ,340);
+
+            //SCORE
+            g.setColor(Color.black);
+            g.setFont(new Font("Courier New", Font.BOLD, 40));
+            FontMetrics metrics2 = getFontMetrics(g.getFont());
+            g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
+        }
+//        if(gameIsOver){
+//            g.setColor(Color.black);
+//            g.setFont(new Font("Courier New", Font.BOLD, 75));
+//            FontMetrics metrics1 = getFontMetrics(g.getFont());
+//            g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
+//            g.setColor(Color.black);
+//            g.setFont(new Font("Courier New", Font.BOLD, 20));
+//            g.drawString("PRESS SPACE TO RESTART", 150 ,340);
+//
+//            //SCORE
+//            g.setColor(Color.black);
+//            g.setFont(new Font("Courier New", Font.BOLD, 40));
+//            FontMetrics metrics2 = getFontMetrics(g.getFont());
+//            g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
+//        }
+
     }
 
-    public void newApple() {
+    public void newApple() { // to generate apple at any X and Y in grid
         appleX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE; // random place for apple to spawn
         appleY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
     }
 
-    public  void newBadApple(){
-        badAppleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
-        badAppleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
+    public void newBadApple() { // to generate bad apple at any X and Y in grid
+        badAppleY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+        badAppleX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
     }
 
-    public void newSpike() {
+    public void newSpike() { // to generate spike at any X and Y in grid
 
         spikeX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
         spikeY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
@@ -135,6 +189,11 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         spikeX3 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
         spikeX3 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
 
+    }
+
+    public void newIcePath() { // to generate icepath at any X and Y in grid
+        icepathY = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+        icepathX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
     }
 
     public void move() {
@@ -165,48 +224,68 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         if ((x[0] == appleX) && (y[0] == appleY)) { // if position of 'head' and 'apple' in same position
             bodyParts++; // body longer
 //            bodyParts = bodyParts+10;
-            applesEaten = applesEaten+10; // increment score
+            applesEaten = applesEaten + 10; // increment score
 //            applesEaten = applesEaten +50;
             newApple();
             newSpike();
-            DELAY--; //for increased snake speed
+            newIcePath();
         }
     }
 
     public void checkSpike() {
         if ((x[0] == spikeX) && (y[0] == spikeY)
                 || (x[0] == spikeX2) && (y[0] == spikeY2)
-                || (x[0] == spikeX3) && (y[0] == spikeY3))  { // if snake 'head' in same 'cord' at spike
+                || (x[0] == spikeX3) && (y[0] == spikeY3)) { // if snake 'head' in same 'cord' at spike
             bodyParts--;
-            applesEaten = applesEaten-5;
+            applesEaten = applesEaten - 5;
             newSpike();
             newApple();
+            newIcePath();
+            newBadApple();
         }
     }
+
+    public static boolean hitBad_icepath = false;
+
+    public void checkIcepath() {
+        if ((x[0] == icepathX) && (y[0] == icepathY)) {
+            hitBad_icepath = true;
+            newSpike();
+            newApple();
+            newIcePath();
+            newBadApple();
+
+        }
+    }
+
     public static boolean hitBad = false;
+    public static boolean hitBad_reverse = false;
+
     public void checkBadApple() {
 
-//        long startTime = System.currentTimeMillis();
-//        long endTime = startTime + 2*1000;
 
-        if ((x[0] == badAppleX) && (y[0] == badAppleY)) { // if hit bad apple then
-            hitBad = true;
-            newApple();
-            newSpike();
-            newBadApple();
-//            while (System.currentTimeMillis() < endTime) {
-//                DELAY = 50;
-//                newApple();
-//                newSpike();
-//                newBadApple();
-//                }
-////            DELAY = 100;
+        if ((x[0] == badAppleX) && (y[0] == badAppleY)) {
+            if (System.currentTimeMillis()%2 == 0) { // if hit bad apple then
+                hitBad = true;
+                newApple();
+                newSpike();
+                newIcePath();
+                newBadApple();
             }
+            else if(System.currentTimeMillis()%3 == 0) {
+                hitBad_reverse = true;
+                newApple();
+                newSpike();
+                newIcePath();
+                newBadApple();
+            }
+        }
+    }
 //            DELAY--;
 //            newApple();
 //            newSpike();
 //            newBadApple();
-        }
+
 //    }
 
 
@@ -214,7 +293,8 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         // check for hit snake body
         for (int i = bodyParts; i > 0; i--) {
             if ((x[0] == x[i]) && (y[0] == y[i])) { // if head (x[0]) hit it bodypart
-                running = false; // end the game
+                running = false;
+                break;// end the game
             }
         }
 
@@ -237,39 +317,72 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         }
     }
 
-    public void gameOver(Graphics g) {
-        //GAME OVER INTERFACE
-        g.setColor(Color.red);
-        g.setFont(new Font("Ink Free", Font.BOLD, 75));
-        FontMetrics metrics1 = getFontMetrics(g.getFont());
-        g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
-
-        //SCORE
-        g.setColor(Color.red);
-        g.setFont(new Font("Ink Free", Font.BOLD, 40));
-        FontMetrics metrics2 = getFontMetrics(g.getFont());
-        g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
-    }
+//    public void gameOver(Graphics g) {
+//        //GAME OVER INTERFACE
+//        g.setColor(Color.red);
+//        g.setFont(new Font("Courier New", Font.BOLD, 75));
+//        FontMetrics metrics1 = getFontMetrics(g.getFont());
+//        g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
+//
+//        //SCORE
+//        g.setColor(Color.red);
+//        g.setFont(new Font("Courier New", Font.BOLD, 40));
+//        FontMetrics metrics2 = getFontMetrics(g.getFont());
+//        g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
+//    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (running) {
-            timer.setDelay(DELAY);
-            if(hitBad){
-                if(sp_delay<10){
-                    DELAY = 50;
+//        in = new FileInputStream(new File("src\\assets\\audio\\hit_spike.wav"));
+        if (running) { // if running is true
+            timer.setDelay(DELAY); // to be able to set DELAY
+            if (hitBad) { // if hitbad is true ~~defalut is false
+                hitBad_icepath = false; // disable other bad effect
+                if (sp_delay < 50) {
+                    DELAY = 75;
                     sp_delay++;
-                    System.out.println(sp_delay);
-                }
-                else{
+                    System.out.println("Speed Boost!");
+                    checkBadApple();
+                } else {
                     sp_delay = 0;
                     hitBad = false;
                     DELAY = 100;
+
                 }
             }
+            if (hitBad_icepath) {
+                hitBad = false;
+                if (sp_delay < 2) {
+                    DELAY = 1;
+                    sp_delay++;
+                    System.out.println("GO! slide forward!");
+                    checkBadApple();
+                } else {
+                    sp_delay = 0;
+                    hitBad_icepath = false;
+                    DELAY = 100;
+                }
+            }
+            if (hitBad_reverse){
+                hitBad = false;
+                hitBad_icepath = false;
+                if(sp_delay < 10){
+                    control_reverse = true;
+                    sp_delay++;
+                    System.out.println("Nothing under control...");
+                    checkBadApple();
+                }else{
+                    sp_delay = 0;
+                    control_reverse = false;
+                    hitBad_reverse = false;
+
+                }
+            }
+
             move(); // check if game is running
             checkApple();
             checkSpike();
+            checkIcepath();
             checkCollisions();
             checkBadApple();
 
@@ -278,33 +391,78 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         repaint();
 
     }
+
     public static int sp_delay = 0; // timer
+    public static boolean control_reverse = false;
 
     public class MyKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            switch (e.getKeyCode()) {
-                case KeyEvent.VK_LEFT:
-                    if (direction != 'R') {
-                        direction = 'L';
-                    }
-                    break;
-                case KeyEvent.VK_RIGHT:
-                    if (direction != 'L') {
-                        direction = 'R';
-                    }
-                    break;
-                case KeyEvent.VK_UP:
-                    if (direction != 'D') {
-                        direction = 'U';
-                    }
-                    break;
-                case KeyEvent.VK_DOWN:
-                    if (direction != 'U') {
-                        direction = 'D';
-                    }
-                    break;
+            if (!control_reverse) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                        if (direction != 'R') {
+                            direction = 'L';
+                        }
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        if (direction != 'L') {
+                            direction = 'R';
+                        }
+                        break;
+                    case KeyEvent.VK_UP:
+                        if (direction != 'D') {
+                            direction = 'U';
+                        }
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        if (direction != 'U') {
+                            direction = 'D';
+                        }
+                        break;
+                    case KeyEvent.VK_SPACE:
+                        restart();
+                        System.out.println("I PRESS SPACE");
+
+                        break;
+                }
+            }else {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_RIGHT:
+                        if (direction != 'R') {
+                            direction = 'L';
+                        }
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        if (direction != 'L') {
+                            direction = 'R';
+                        }
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        if (direction != 'D') {
+                            direction = 'U';
+                        }
+                        break;
+                    case KeyEvent.VK_UP:
+                        if (direction != 'U') {
+                            direction = 'D';
+                        }
+                        break;
+                }
             }
         }
+    }
+    private void restart(){
+        gameIsOver = false;
+        move();
+        newApple();
+        newSpike();
+        newBadApple();
+        newIcePath();
+        applesEaten = 0;
+        bodyParts = 3;
+
+        running = true;
+        timer.start();
     }
 }
