@@ -2,6 +2,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
+import java.io.StringReader;
 import java.util.Random;
 import javax.swing.Timer;
 
@@ -40,6 +41,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     boolean running = false;
     Timer timer;
     Random random;
+    private boolean isGameStart = false;
 
     GamePanel() {
         if (running) {
@@ -62,13 +64,15 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     }
 
     public void startGame() {
-        newApple();
-        newSpike();
-        newBadApple();
-        newIcePath();
         running = true;
-        timer = new Timer(DELAY, this);
-        timer.start();
+        if(isGameStart) {
+            newApple();
+            newSpike();
+            newBadApple();
+            newIcePath();
+            timer = new Timer(DELAY, this);
+            timer.start();
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -140,9 +144,9 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             g.setFont(new Font("Courier New", Font.BOLD, 75));
             FontMetrics metrics1 = getFontMetrics(g.getFont());
             g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
-            g.setColor(Color.black);
-            g.setFont(new Font("Courier New", Font.BOLD, 20));
-            g.drawString("PRESS SPACE TO RESTART", 150 ,340);
+//            g.setColor(Color.black);
+//            g.setFont(new Font("Courier New", Font.BOLD, 20));
+//            g.drawString("PRESS SPACE TO RESTART", 150 ,340);
 
             //SCORE
             g.setColor(Color.black);
@@ -150,22 +154,15 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             FontMetrics metrics2 = getFontMetrics(g.getFont());
             g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
         }
-//        if(gameIsOver){
-//            g.setColor(Color.black);
-//            g.setFont(new Font("Courier New", Font.BOLD, 75));
-//            FontMetrics metrics1 = getFontMetrics(g.getFont());
-//            g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
-//            g.setColor(Color.black);
-//            g.setFont(new Font("Courier New", Font.BOLD, 20));
-//            g.drawString("PRESS SPACE TO RESTART", 150 ,340);
-//
-//            //SCORE
-//            g.setColor(Color.black);
-//            g.setFont(new Font("Courier New", Font.BOLD, 40));
-//            FontMetrics metrics2 = getFontMetrics(g.getFont());
-//            g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
-//        }
-
+        if(!isGameStart){
+            g.setColor(Color.black);
+            g.setFont(new Font("Courier New", Font.BOLD, 75));
+            FontMetrics metrics1 = getFontMetrics(g.getFont());
+            g.drawString("SNAKE GAME!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
+            g.setColor(Color.black);
+            g.setFont(new Font("Courier New", Font.BOLD, 20));
+            g.drawString("PRESS SPACE TO START", 170 ,340);
+        }
     }
 
     public void newApple() { // to generate apple at any X and Y in grid
@@ -420,10 +417,14 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
                             direction = 'D';
                         }
                         break;
+//                    case KeyEvent.VK_SPACE:
+//                        restart();
+//                        System.out.println("I PRESS SPACE");
+//                        break;
                     case KeyEvent.VK_SPACE:
-                        restart();
+                        isGameStart = true;
+                        startGame();
                         System.out.println("I PRESS SPACE");
-
                         break;
                 }
             }else {
@@ -465,4 +466,5 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         running = true;
         timer.start();
     }
+
 }
