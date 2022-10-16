@@ -27,13 +27,13 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     int badAppleX;
     int badAppleY;
 
-    // for spike
-    int spikeY;
-    int spikeX;
-    int spikeY2;
-    int spikeX2;
-    int spikeX3;
-    int spikeY3;
+    // for rock
+    int rockY;
+    int rockX;
+    int rockY2;
+    int rockX2;
+    int rockX3;
+    int rockY3;
     int icepathX;
     int icepathY;
 
@@ -47,7 +47,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         if (running) {
             random = new Random();
             this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
-            this.setBackground(Color.yellow);
+            this.setBackground(Color.decode("#4F7942"));
 
             this.setFocusable(true);
             this.addKeyListener(new MyKeyAdapter());
@@ -55,7 +55,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         } else {
             random = new Random();
             this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
-            this.setBackground(Color.yellow);
+            this.setBackground(Color.decode("#4F7942"));
 
             this.setFocusable(true);
             this.addKeyListener(new MyKeyAdapter());
@@ -67,7 +67,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         running = true;
         if(isGameStart) {
             newApple();
-            newSpike();
+            newRock();
             newBadApple();
             newIcePath();
             timer = new Timer(DELAY, this);
@@ -100,21 +100,23 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             if (bodyParts < 100) {
                 //for draw spike when bodypart is lower than 70~
                 g.setColor(Color.gray);
-                g.fillOval(spikeX, spikeY, UNIT_SIZE, UNIT_SIZE);
-                g.fillOval(spikeX2, spikeY2, UNIT_SIZE, UNIT_SIZE);
-                g.fillOval(spikeX3, spikeY3, UNIT_SIZE, UNIT_SIZE);
+                g.fillOval(rockX, rockY, UNIT_SIZE, UNIT_SIZE);
+                g.fillOval(rockX2, rockY2, UNIT_SIZE, UNIT_SIZE);
+                g.fillOval(rockX3, rockY3, UNIT_SIZE, UNIT_SIZE);
                 //for draw ice path
                 g.setColor(Color.blue);
                 g.fillOval(icepathX, icepathY, UNIT_SIZE, UNIT_SIZE);
-            } else if (bodyParts > 100) {
+            } else if (bodyParts < 150 && bodyParts > 100) {
                 g.setColor(Color.gray);
-                g.fillOval(spikeX, spikeY, UNIT_SIZE, UNIT_SIZE);
+                g.fillOval(rockX, rockY, UNIT_SIZE, UNIT_SIZE);
             }
 
             // draw bad apple
-            if ((applesEaten != 0 && applesEaten % 50 == 0 && bodyParts < 100) || (applesEaten % 55 == 0 && bodyParts < 100)
-                    || (applesEaten % 45 == 0 && bodyParts < 100) || (applesEaten % 65 == 0 && bodyParts < 100)) {
-                g.setColor(Color.pink);
+            if ((applesEaten != 0 && applesEaten % 50 == 0 && bodyParts < 100)
+                    || (applesEaten % 55 == 0 && bodyParts < 100)
+                    || (applesEaten % 45 == 0 && bodyParts < 100)
+                    || (applesEaten % 65 == 0 && bodyParts < 100)) {
+                g.setColor(Color.red);
                 g.fillOval(badAppleX, badAppleY, UNIT_SIZE, UNIT_SIZE);
             }
 
@@ -129,7 +131,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
                 }
                 g.setColor(Color.red); // generate scoreboard
                 g.setFont(new Font("Fira Code Regular", Font.BOLD, 40));
-                FontMetrics metrics = getFontMetrics(g.getFont());
+//                FontMetrics metrics = getFontMetrics(g.getFont());
 //                g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
                 g.drawString("SCORE : " + applesEaten,0,600);
             }
@@ -175,16 +177,16 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         badAppleX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
     }
 
-    public void newSpike() { // to generate spike at any X and Y in grid
+    public void newRock() { // to generate rock at any X and Y in grid
 
-        spikeX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
-        spikeY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+        rockX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+        rockY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
 
-        spikeX2 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
-        spikeY2 = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+        rockX2 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+        rockY2 = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
 
-        spikeX3 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
-        spikeX3 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+        rockX3 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+        rockX3 = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
 
     }
 
@@ -224,18 +226,18 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             applesEaten = applesEaten + 10; // increment score
 //            applesEaten = applesEaten +50;
             newApple();
-            newSpike();
+            newRock();
             newIcePath();
         }
     }
 
-    public void checkSpike() {
-        if ((x[0] == spikeX) && (y[0] == spikeY)
-                || (x[0] == spikeX2) && (y[0] == spikeY2)
-                || (x[0] == spikeX3) && (y[0] == spikeY3)) { // if snake 'head' in same 'cord' at spike
+    public void checkRock() {
+        if ((x[0] == rockX) && (y[0] == rockY)
+                || (x[0] == rockX2) && (y[0] == rockY2)
+                || (x[0] == rockX3) && (y[0] == rockY3)) { // if snake 'head' in same 'cord' at rock
             bodyParts--;
             applesEaten = applesEaten - 5;
-            newSpike();
+            newRock();
             newApple();
             newIcePath();
             newBadApple();
@@ -247,7 +249,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     public void checkIcepath() {
         if ((x[0] == icepathX) && (y[0] == icepathY)) {
             hitBad_icepath = true;
-            newSpike();
+            newRock();
             newApple();
             newIcePath();
             newBadApple();
@@ -260,19 +262,18 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 
     public void checkBadApple() {
 
-
         if ((x[0] == badAppleX) && (y[0] == badAppleY)) {
             if (System.currentTimeMillis()%2 == 0) { // if hit bad apple then
                 hitBad = true;
                 newApple();
-                newSpike();
+                newRock();
                 newIcePath();
                 newBadApple();
             }
             else if(System.currentTimeMillis()%3 == 0) {
                 hitBad_reverse = true;
                 newApple();
-                newSpike();
+                newRock();
                 newIcePath();
                 newBadApple();
             }
@@ -280,7 +281,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     }
 //            DELAY--;
 //            newApple();
-//            newSpike();
+//            newRock();
 //            newBadApple();
 
 //    }
@@ -313,20 +314,6 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             timer.stop();
         }
     }
-
-//    public void gameOver(Graphics g) {
-//        //GAME OVER INTERFACE
-//        g.setColor(Color.red);
-//        g.setFont(new Font("Courier New", Font.BOLD, 75));
-//        FontMetrics metrics1 = getFontMetrics(g.getFont());
-//        g.drawString("Game Over!", (SCREEN_WIDTH - metrics1.stringWidth("Game Over!")) / 2, SCREEN_HEIGHT / 2);
-//
-//        //SCORE
-//        g.setColor(Color.red);
-//        g.setFont(new Font("Courier New", Font.BOLD, 40));
-//        FontMetrics metrics2 = getFontMetrics(g.getFont());
-//        g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
-//    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -378,7 +365,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 
             move(); // check if game is running
             checkApple();
-            checkSpike();
+            checkRock();
             checkIcepath();
             checkCollisions();
             checkBadApple();
@@ -453,18 +440,18 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             }
         }
     }
-    private void restart(){
-        gameIsOver = false;
-        move();
-        newApple();
-        newSpike();
-        newBadApple();
-        newIcePath();
-        applesEaten = 0;
-        bodyParts = 3;
-
-        running = true;
-        timer.start();
-    }
+//    private void restart(){
+//        gameIsOver = false;
+//        move();
+//        newApple();
+//        newSpike();
+//        newBadApple();
+//        newIcePath();
+//        applesEaten = 0;
+//        bodyParts = 3;
+//
+//        running = true;
+//        timer.start();
+//    }
 
 }
