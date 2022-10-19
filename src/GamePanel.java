@@ -9,8 +9,8 @@ import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements ActionListener { // JPanel use to organize components
 
-    static final int SCREEN_WIDTH = 600;
-    static final int SCREEN_HEIGHT = 600;
+    static final int SCREEN_WIDTH = 600; // to decided width of window
+    static final int SCREEN_HEIGHT = 600; // to decided height of window
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (UNIT_SIZE * UNIT_SIZE);
     int DELAY = 100; // default 75
@@ -44,7 +44,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     private boolean isGameStart = false;
 
     GamePanel() {
-        if (running) {
+        if (running) {  // if game start then generate components
             random = new Random();
             this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
             this.setBackground(Color.decode("#4F7942"));
@@ -65,7 +65,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 
     public void startGame() {
         running = true;
-        if(isGameStart) {
+        if(isGameStart) { // if game start then excute following class
             newApple();
             newRock();
             newBadApple();
@@ -91,7 +91,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 //                g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
 //            }
 
-            // draw  apple
+            // draw  apple when game start
             g.setColor(Color.red);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE); // generate apple
 
@@ -112,7 +112,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             }
 
             // draw bad apple
-            if ((applesEaten != 0 && applesEaten % 50 == 0 && bodyParts < 100)
+            if ((applesEaten != 0 && applesEaten % 50 == 0 && bodyParts < 100) // a lot of condition in order to make the game not much hard
                     || (applesEaten % 55 == 0 && bodyParts < 100)
                     || (applesEaten % 45 == 0 && bodyParts < 100)
                     || (applesEaten % 65 == 0 && bodyParts < 100)) {
@@ -141,7 +141,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             gameIsOver = true;
         }
 
-        if(gameIsOver){
+        if(gameIsOver){ // to promt text in window that player already lose
             g.setColor(Color.black);
             g.setFont(new Font("Courier New", Font.BOLD, 75));
             FontMetrics metrics1 = getFontMetrics(g.getFont());
@@ -156,7 +156,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             FontMetrics metrics2 = getFontMetrics(g.getFont());
             g.drawString("SCORE : " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("SCORE : " + applesEaten)) / 2, g.getFont().getSize());
         }
-        if(!isGameStart){
+        if(!isGameStart){ // to promt user to press spacebar to start
             g.setColor(Color.black);
             g.setFont(new Font("Courier New", Font.BOLD, 75));
             FontMetrics metrics1 = getFontMetrics(g.getFont());
@@ -195,7 +195,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
         icepathX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
     }
 
-    public void move() {
+    public void move() { // this class made snake moving forward by 1 gird to 1 grid
         for (int i = bodyParts; i > 0; i--) {  // read go for each block/grid
             x[i] = x[i - 1];
             y[i] = y[i - 1];
@@ -247,7 +247,7 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
     public static boolean hitBad_icepath = false;
 
     public void checkIcepath() {
-        if ((x[0] == icepathX) && (y[0] == icepathY)) {
+        if ((x[0] == icepathX) && (y[0] == icepathY)) { // if the snake head are the same position as icepath
             hitBad_icepath = true;
             newRock();
             newApple();
@@ -262,15 +262,15 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 
     public void checkBadApple() {
 
-        if ((x[0] == badAppleX) && (y[0] == badAppleY)) {
-            if (System.currentTimeMillis()%2 == 0) { // if hit bad apple then
+        if ((x[0] == badAppleX) && (y[0] == badAppleY)) { // if the snake head are the same position as badApple
+            if (System.currentTimeMillis()%2 == 0) { // << This is how i random effect of apple to affect the snake
                 hitBad = true;
                 newApple();
                 newRock();
                 newIcePath();
                 newBadApple();
             }
-            else if(System.currentTimeMillis()%3 == 0) {
+            else if(System.currentTimeMillis()%3 == 0) { // Have lower weight to get
                 hitBad_reverse = true;
                 newApple();
                 newRock();
@@ -336,10 +336,10 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             }
             if (hitBad_icepath) {
                 hitBad = false;
-                if (sp_delay < 2) {
+                if (sp_delay < 2) { // loop
                     DELAY = 1;
                     sp_delay++;
-                    System.out.println("GO! slide forward!");
+                    System.out.println("GO! slide forward!"); // to see that if this function work
                     checkBadApple();
                 } else {
                     sp_delay = 0;
@@ -350,12 +350,12 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
             if (hitBad_reverse){
                 hitBad = false;
                 hitBad_icepath = false;
-                if(sp_delay < 10){
+                if(sp_delay < 10){ // << use this loop as timer
                     control_reverse = true;
                     sp_delay++;
                     System.out.println("Nothing under control...");
                     checkBadApple();
-                }else{
+                }else{ // loop end then set the things that change to default
                     sp_delay = 0;
                     control_reverse = false;
                     hitBad_reverse = false;
@@ -381,8 +381,8 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 
     public class MyKeyAdapter extends KeyAdapter {
         @Override
-        public void keyPressed(KeyEvent e) {
-            if (!control_reverse) {
+        public void keyPressed(KeyEvent e) { // basic control using arrow keys
+            if (!control_reverse) { // this one is for easier too deal with reverse control (i can only think about this)
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_LEFT:
                         if (direction != 'R') {
@@ -408,14 +408,14 @@ public class GamePanel extends JPanel implements ActionListener { // JPanel use 
 //                        restart();
 //                        System.out.println("I PRESS SPACE");
 //                        break;
-                    case KeyEvent.VK_SPACE:
+                    case KeyEvent.VK_SPACE: // press spacebar to excute stargame() class
                         isGameStart = true;
                         startGame();
                         System.out.println("I PRESS SPACE");
                         break;
                 }
             }else {
-                switch (e.getKeyCode()) {
+                switch (e.getKeyCode()) {  // just reverse the normal one
                     case KeyEvent.VK_RIGHT:
                         if (direction != 'R') {
                             direction = 'L';
